@@ -47,3 +47,61 @@ Our final model achieved **79.6% test accuracy**, improving over a **60% baselin
 **Precision:** 4-bit (via bitsandbytes)  
 
 **Prompt Template:**
+Question: {question}
+Answer: {answer}
+
+Determine if the answer is correct.
+Respond with True or False only.
+
+
+**Training Configuration**
+| Hyperparameter | Value |
+|----------------|--------|
+| Learning Rate | 7.0e-5 |
+| Batch Size | 8 |
+| Gradient Accumulation | 8 |
+| Epochs | 2 |
+| Max Seq Length | 2048 |
+| Optimizer | AdamW |
+| Scheduler | Cosine |
+| GPU | A100 (40 GB) |
+| Training Time | ~3.5 hours |
+
+---
+
+### 📊 Results
+
+| Experiment | Configuration | Accuracy |
+|-------------|----------------|-----------|
+| Baseline | r = 1, uncleaned data (60 steps) | 0.60 |
+| Prompt + Solution Text | Full context included | 0.75 |
+| LoRA Rank 8 | Cleaned data + optimized prompt | **0.796** |
+
+**Final Test Accuracy:** **79.6 %**  
+**Improvement:** +19.6 % over baseline
+
+---
+
+### 🔍 Observations
+**What Worked**
+- Clean data preprocessing (+1–2 %)  
+- LoRA rank 8 (+3–4 %)  
+- Lower learning rate (7e-5) and cosine scheduler  
+- Expanded training samples (30 k → 50 k)  
+
+**What Didn’t Work**
+- Including long “solution” texts (caused overfitting)  
+- High LoRA ranks (> 32) added instability without gain  
+
+---
+
+### ⚠️ Limitations
+- Model sometimes misclassifies **fluent but incorrect** solutions.  
+- Limited by single-GPU resources (used 50 k of 1 M samples).  
+- LoRA initialization occasionally unstable with 4-bit quantization.  
+
+---
+
+### 📚 References
+1. Meta AI. *Llama 3 Model Card.* (2024)  https://github.com/meta-llama/llama3  
+2. Hu et al. *LoRA: Low-Rank Adaptation of Large Language Models.* ICLR 2022  
